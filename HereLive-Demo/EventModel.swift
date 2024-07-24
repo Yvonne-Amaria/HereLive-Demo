@@ -40,7 +40,7 @@ struct EventsResponse: Codable {
 
 class EventService {
     static let shared = EventService()
-    private let apiKey = "50f16a08f9443b8ea3a39cb9768489178ddfe0473db6b709f0c7d9e204021206"
+    private let apiKey = "serpiaapikey"
     private let baseUrl = "https://serpapi.com/search.json"
 
     func fetchEvents(completion: @escaping (Result<[Event], Error>) -> Void) {
