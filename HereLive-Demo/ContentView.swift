@@ -5,84 +5,150 @@
 //  Created by Yvonne J on 4/21/24.
 //
 
+
+//import SwiftUI
+//
+//struct ContentView: View {
+//    @StateObject var authViewModel = AuthViewModel()  // Manage the view model here
+//    @State private var isShowingLandingView = true
+//
+//    var body: some View {
+//        NavigationView {
+//            if isShowingLandingView {
+//                LandingView {
+//                    isShowingLandingView = false
+//                }
+//            } else {
+//                if authViewModel.isAuthenticated {
+//                    MainTabView()
+//                } else {
+//                    LoginView()
+//                        .environmentObject(authViewModel) // Pass the AuthViewModel here
+//                }
+//            }
+//        }
+//    }
+//}
+//
+//
+//struct ContentView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ContentView()
+//    }
+//}
+//
+//struct MainTabView: View {
+//
+//    var body: some View {
+//        TabView {
+//            HomeView()
+//                .tabItem {
+//                    Label("Home", systemImage: "house")
+//                }
+//
+//            ProfileView()
+//                .tabItem {
+//                    Label("Profile", systemImage: "person")
+//                }
+//
+//            DiscoverView()
+//                .tabItem {
+//                    Label("Discover", systemImage: "magnifyingglass")
+//                }
+//
+//            PlannerView()
+//                .tabItem {
+//                    Label("Planner", systemImage: "calendar")
+//                }
+//
+//            WalletView()
+//                .tabItem {
+//                    Label("Wallet", systemImage: "wallet.pass")
+//                }
+//        }
+//    }
+//}
+//
+//struct MainTabView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        MainTabView()
+//    }
+//}
+//
+
+
+
+
+
 import SwiftUI
-import CoreData
+import Firebase
+
 
 struct ContentView: View {
-    @Environment(\.managedObjectContext) private var viewContext
+    @State private var isShowingLandingView = true
+    @State private var isAuthenticated = false
 
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
-    private var items: FetchedResults<Item>
+    init() {
+        // Check Firebase Authentication status
+        isAuthenticated = Auth.auth().currentUser != nil
+    }
 
     var body: some View {
         NavigationView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
-                    }
+            if isShowingLandingView {
+                LandingView {
+                    isShowingLandingView = false
                 }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+            } else {
+                if isAuthenticated {
+                    MainTabView()
+                } else {
+                    LoginView()
                 }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-            Text("Select an item")
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
     }
 }
 
-private let itemFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
-    return formatter
-}()
-
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+        ContentView()
+    }
+}
+
+struct MainTabView: View {
+    var body: some View {
+        TabView {
+            HomeView()
+                .tabItem {
+                    Label("Home", systemImage: "house")
+                }
+            
+            ProfileView()
+                .tabItem {
+                    Label("Profile", systemImage: "person")
+                }
+            
+            DiscoverView()
+                .tabItem {
+                    Label("Discover", systemImage: "magnifyingglass")
+                }
+            
+            PlannerView()
+                .tabItem {
+                    Label("Planner", systemImage: "calendar")
+                }
+            
+            WalletView()
+                .tabItem {
+                    Label("Wallet", systemImage: "wallet.pass")
+                }
+        }
+    }
+}
+
+struct MainTabView_Previews: PreviewProvider {
+    static var previews: some View {
+        MainTabView()
     }
 }
